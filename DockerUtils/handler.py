@@ -9,25 +9,21 @@ from eval_face_recognition import eval_faceRecognition
     aws_secret_access_key = 'DIXBZuB5utzXQXdYr0yKZAG+MixFa+J1snZYQhDB ',
     region_name = 'us-east-1'
 	)"""
-s3 = boto3.resource(
+s3 = boto3.client(
 	's3',
 	aws_access_key_id = 'AKIAV2EOFAM6NGERWENN ',
-    aws_secret_access_key = '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 ',
+    aws_secret_access_key = 'DIXBZuB5utzXQXdYr0yKZAG+MixFa+J1snZYQhDB',
     region_name = 'us-east-1'
 	)
 
 def face_recognition_handler(event, context):
-	"""bucketName = event['bucketName']
+	bucketName = event['bucketName']
 	keyName = event['keyName']
 	response = s3.get_object(Bucket=bucketName, Key=keyName)
 	emailcontent = response['Body'].read()
 	print(emailcontent)
-	os.chdir('/tmp')
+	#os.chdir('/tmp')
 	with open(keyName, 'wb') as f: 
 		f.write(emailcontent)
-	return eval_faceRecognition(keyName)"""
-
-# Print out bucket names
-	for bucket in s3.buckets.all():
-		print(bucket.name)
-face_recognition_handler("","")
+	return eval_faceRecognition(keyName)
+face_recognition_handler({"bucketName":"cse546project2videos", "keyName":"hello.png"},"")
