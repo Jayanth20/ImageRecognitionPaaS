@@ -1,5 +1,8 @@
 boto3
-numpy
-opencv-python
 dlib
+numpy
+face_recognition
+opencv-python
 ffmpeg
+botocore
+awslambdaric
