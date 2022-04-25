@@ -22,8 +22,11 @@ def face_recognition_handler(event, context):
 	response = s3.get_object(Bucket=bucketName, Key=keyName)
 	emailcontent = response['Body'].read()
 	print(emailcontent)
-	#os.chdir('/tmp')
-	with open(keyName, 'wb') as f: 
+	with open('../../tmp/'+keyName, 'wb') as f: 
 		f.write(emailcontent)
-	return eval_faceRecognition(keyName)
-face_recognition_handler({"bucketName":"cse546project2videos", "keyName":"hello.png"},"")
+	print("writing completed!")
+	result =  eval_faceRecognition('../../tmp/'+keyName)
+	return result
+
+# face_recognition_handler({"bucketName":"cse546project2videos", "keyName":"hello.png"},"")
+ 
