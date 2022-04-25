@@ -11,7 +11,7 @@ from eval_face_recognition import eval_faceRecognition
 	)"""
 s3 = boto3.client(
 	's3',
-	aws_access_key_id = 'AKIAV2EOFAM6NGERWENN ',
+	aws_access_key_id = 'AKIAV2EOFAM6NGERWENN',
     aws_secret_access_key = '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',
     region_name = 'us-east-1'
 	)
