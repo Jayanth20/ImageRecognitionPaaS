@@ -62,6 +62,7 @@ COPY entry.sh /
 COPY build_custom_model.py ${FUNCTION_DIR}
 COPY eval_face_recognition.py ${FUNCTION_DIR}
 ADD checkpoint /home/app/checkpoint
+ADD models /home/app/models
 COPY handler.py ${FUNCTION_DIR}
 RUN chmod 777 /entry.sh
 

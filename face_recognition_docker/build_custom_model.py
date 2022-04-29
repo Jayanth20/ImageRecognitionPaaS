@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.optim import lr_scheduler
 from torch.nn.init import *
 from torchvision import transforms, utils, datasets, models
-from facenet_pytorch.models.inception_resnet_v1 import InceptionResnetV1
+from models.inception_resnet_v1 import InceptionResnetV1
 
 class Flatten(nn.Module):
     def __init__(self):

@@ -4,7 +4,7 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
-from facenet_pytorch.models.inception_resnet_v1 import InceptionResnetV1
+from models.inception_resnet_v1 import InceptionResnetV1
 from urllib.request import urlopen
 from PIL import Image
 import json
@@ -17,7 +17,6 @@ def eval_faceRecognition(imagePath):
      labels_dir = "./checkpoint/labels.json"
      model_path = "./checkpoint/model_vggface2_best.pth"
      
-
      # read labels
      with open(labels_dir) as f:
           labels = json.load(f)
@@ -29,7 +28,6 @@ def eval_faceRecognition(imagePath):
      model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'))['model'])
      model.eval()
      print(f"Best accuracy of the loaded model: {torch.load(model_path, map_location=torch.device('cpu'))['best_acc']}")
-
 
      img = Image.open(img_path)
      img_tensor = transforms.ToTensor()(img).unsqueeze_(0).to(device)

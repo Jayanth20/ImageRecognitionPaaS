@@ -21,7 +21,7 @@ def face_recognition_handler(event, context):
 	keyName = event['keyName']
 	response = s3.get_object(Bucket=bucketName, Key=keyName)
 	emailcontent = response['Body'].read()
-	print(emailcontent)
+	# print(emailcontent)
 	with open('../../tmp/'+keyName, 'wb') as f: 
 		f.write(emailcontent)
 	print("writing completed!")
