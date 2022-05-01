@@ -35,7 +35,7 @@ camera = PiCamera()
 camera.resolution = (160, 160)
 # left, top, right, bottom = 1.5*160, 160 , 2.5*160, 2*160
 camera.framerate = 15
-recordingTimeInsec = 2
+recordingTimeInsec = 5
 
 # setting sqs
 sqs = boto3.client("sqs",
@@ -65,7 +65,9 @@ def uploadVideo(local_file, s3_file):
 
 # polling messages 
 def poolMessagesFromQueue():
-    while True:
+    i = 0
+    # 2 videos in each second and 2 frames in each video
+    while i != recordingTimeInsec*2*2:
         print("Polling messages...")
         response = sqs.receive_message(
             QueueUrl=queue_url,
@@ -76,6 +78,7 @@ def poolMessagesFromQueue():
             for message in response['Messages']:
                 try:
                     print(message['Body'])
+                    i+=1
                 except Exception as e:
                     print(f"exception while processing message: {repr(e)}")
                     continue
@@ -107,7 +110,7 @@ def getFaceRecognitionResult(fileName, i):
     # im1 = im.crop((left, top, right, bottom))
     im.save(str(path) + "image"+ str(i)+ "-002.png")
     uploadImages(str(path) + "image"+ str(i)+ "-002.png", "image"+ str(i)+ "-002.png")
-    print("Completed : ", i)
+    print("Completed and terminating thread: ", i)
     # uploading file
 
 
@@ -118,7 +121,7 @@ sleep(0.5)
 camera.stop_recording()
 threads.append(threading.Thread(target=lambda: getFaceRecognitionResult(str(1)+".h264", 1), name=str(1)))
 threads[-1].start()
-for i in range(2, 3):
+for i in range(2, recordingTimeInsec*2+1):
     camera.start_recording(str(i)+'.h264')
     print("recording: ", i)
     sleep(0.5)
