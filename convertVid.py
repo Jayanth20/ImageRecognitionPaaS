@@ -104,7 +104,7 @@ def getFaceRecognitionResult(fileName, i):
     # upload image1
     im = Image.open(str(path) + "image"+ str(i)+ "-001.jpeg")
     # im1 = im.crop((left, top, right, bottom))
-    im.save(str(path) + "image"+ str(i)+ "-001.png")\
+    im.save(str(path) + "image"+ str(i)+ "-001.png")
     start_time = time.time()
     uploadImages(str(path) + "image"+ str(i)+ "-001.png", "image"+ str(i)+ "-001.png")
     latency = time.time() - start_time
@@ -141,3 +141,4 @@ for i in range(2, recordingTimeInsec*2+1):
 # polling messages - ran as a separate thread
 # threads.append(threading.Thread(target=lambda: poolMessagesFromQueue(), name=str(0)))
 # threads[-1].start()
+
