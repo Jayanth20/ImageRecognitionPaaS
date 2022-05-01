@@ -35,7 +35,7 @@ camera = PiCamera()
 camera.resolution = (160, 160)
 # left, top, right, bottom = 1.5*160, 160 , 2.5*160, 2*160
 camera.framerate = 15
-recordingTimeInsec = 5
+recordingTimeInsec = 1
 
 # setting sqs
 sqs = boto3.client("sqs",
@@ -51,7 +51,7 @@ s3 = boto3.client('s3', aws_access_key_id='AKIAV2EOFAM6NGERWENN',
 def uploadImages(location, fileName):
     with open(location, 'rb') as f:
         r = requests.post(FILE_UPLOAD_API, files={'file': f, 'fileName': fileName })
-        print(r)
+        print(r.text)
 
 # make API call to send video files to s3
 def uploadVideo(local_file, s3_file):
@@ -64,32 +64,33 @@ def uploadVideo(local_file, s3_file):
         print("Credentials not available")
 
 # polling messages 
-def poolMessagesFromQueue():
-    i = 0
-    # 2 videos in each second and 2 frames in each video
-    while i != recordingTimeInsec*2*2:
-        print("Polling messages...")
-        response = sqs.receive_message(
-            QueueUrl=queue_url,
-            MaxNumberOfMessages=10,
-            WaitTimeSeconds=1
-        )
-        if 'Messages' in response:
-            for message in response['Messages']:
-                try:
-                    print(message['Body'])
-                    i+=1
-                except Exception as e:
-                    print(f"exception while processing message: {repr(e)}")
-                    continue
-                receipt_handle = message['ReceiptHandle']
-                sqs.delete_message(
-                    QueueUrl=queue_url,
-                    ReceiptHandle=receipt_handle
-                )
+# def poolMessagesFromQueue():
+#     i = 0
+#     # 2 videos in each second and 2 frames in each video
+#     while i != recordingTimeInsec*2*2:
+#         print("Polling messages...")
+#         response = sqs.receive_message(
+#             QueueUrl=queue_url,
+#             MaxNumberOfMessages=10,
+#             WaitTimeSeconds=1
+#         )
+#         if 'Messages' in response:
+#             for message in response['Messages']:
+#                 try:
+#                     print(message['Body'])
+#                     i+=1
+#                 except Exception as e:
+#                     print(f"exception while processing message: {repr(e)}")
+#                     continue
+#                 receipt_handle = message['ReceiptHandle']
+#                 sqs.delete_message(
+#                     QueueUrl=queue_url,
+#                     ReceiptHandle=receipt_handle
+#                 )
 
 # converting and uploading for face recognition
 def getFaceRecognitionResult(fileName, i):
+    
     # coverting to mp4 and storing in video
     file_mp4 ="/home/pi/Desktop/CloudProject/videos/" + str(i) + ".mp4"
     file_h264 = "/home/pi/Desktop/CloudProject/" + fileName
@@ -103,14 +104,22 @@ def getFaceRecognitionResult(fileName, i):
     # upload image1
     im = Image.open(str(path) + "image"+ str(i)+ "-001.jpeg")
     # im1 = im.crop((left, top, right, bottom))
-    im.save(str(path) + "image"+ str(i)+ "-001.png")
+    im.save(str(path) + "image"+ str(i)+ "-001.png")\
+    start_time = time.time()
     uploadImages(str(path) + "image"+ str(i)+ "-001.png", "image"+ str(i)+ "-001.png")
+    latency = time.time() - start_time
+    print("Latency: {:.2f} seconds.".format(latency))
     # upload image2
     im = Image.open(str(path) + "image"+ str(i)+ "-002.jpeg")
     # im1 = im.crop((left, top, right, bottom))
     im.save(str(path) + "image"+ str(i)+ "-002.png")
+
+    start_time = time.time()
     uploadImages(str(path) + "image"+ str(i)+ "-002.png", "image"+ str(i)+ "-002.png")
+    latency = time.time() - start_time
+    print("Latency: {:.2f} seconds.".format(latency))
     print("Completed and terminating thread: ", i)
+
     # uploading file
 
 
@@ -130,5 +139,5 @@ for i in range(2, recordingTimeInsec*2+1):
     threads[-1].start()
 
 # polling messages - ran as a separate thread
-threads.append(threading.Thread(target=lambda: poolMessagesFromQueue(), name=str(0)))
-threads[-1].start()
+# threads.append(threading.Thread(target=lambda: poolMessagesFromQueue(), name=str(0)))
+# threads[-1].start()

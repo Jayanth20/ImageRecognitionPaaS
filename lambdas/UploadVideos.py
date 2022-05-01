@@ -16,7 +16,7 @@ def lambda_handler(event, context):
     # decoding form-data into bytes
     post_data = base64.b64decode(event["body"])
     # fetching content-type
-    print(post_data)
+    # print(post_data)
     try:
         content_type = event["headers"]["Content-Type"]
     except:
@@ -28,7 +28,7 @@ def lambda_handler(event, context):
     msg = email.message_from_bytes(ct.encode() + post_data)
 
     # checking if the message is multipart
-    print("Multipart check : ", msg.is_multipart())
+    # print("Multipart check : ", msg.is_multipart())
 
     # if message is multipart
     if msg.is_multipart():
@@ -72,11 +72,11 @@ def lambda_handler(event, context):
             # print(fR_result['Payload'].read())
             payload = json.loads(fR_result['Payload'].read())
             print(payload)
-            studentName = payload[1:].split(",")[1]
+            studentName = str(payload.split(",")[-1][:-1])
             
             print(studentName)
             # # temp
-            dynamoSearch = { 'name': studentName }
+            dynamoSearch = { 'name': studentName, 'requestKey': str(payload.split(",")[0][1:]) }
             
             dynamoResp = lambdaTrigger.invoke(
                 FunctionName = 'arn:aws:lambda:us-east-1:399730082620:function:getResultsFromDynamoDB',
@@ -86,13 +86,11 @@ def lambda_handler(event, context):
                 
             print("Dynamo Response: " , dynamoResp)
             payload = json.loads(dynamoResp['Payload'].read())
-            if(payload != "Success"):
-                return {"statusCode": 500, "body": json.dumps("Failed to search in DynamoDB!")}
+            print(payload)
+            return {"statusCode": 200, "body": json.dumps(payload)}
             
         except:
             return {"statusCode": 500, "body": json.dumps("Upload failed or Internal Server Error!")}
-        # on upload success
-        return {"statusCode": 200, "body": json.dumps("Sucess!")}
     else:
         # on upload failure
-        return {"statusCode": 500, "body": json.dumps("Upload failed!")}
+        return {"statusCode": 500, "body": json.dumps("Upload failed or Internal Server Error!!!")}
