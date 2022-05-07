@@ -5,11 +5,13 @@ import subprocess
 import sys
 import os
 
+
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 # install('ffmpeg')
 # install('boto3')
+import json
 import ffmpeg
 import boto3
 import _thread
@@ -35,7 +37,7 @@ camera = PiCamera()
 camera.resolution = (160, 160)
 # left, top, right, bottom = 1.5*160, 160 , 2.5*160, 2*160
 camera.framerate = 15
-recordingTimeInsec = 1
+recordingTimeInsec = 3
 
 # setting sqs
 sqs = boto3.client("sqs",
@@ -51,7 +53,11 @@ s3 = boto3.client('s3', aws_access_key_id='AKIAV2EOFAM6NGERWENN',
 def uploadImages(location, fileName):
     with open(location, 'rb') as f:
         r = requests.post(FILE_UPLOAD_API, files={'file': f, 'fileName': fileName })
-        print(r.text)
+        result = r.content.decode('utf-8')
+        r = json.loads(result)
+        for i in r:
+            for key in i:
+                print(key, ":- Student Name: ", i[key]['name'] , ", id: ", i[key]['id'], ", major: ", i[key]['major'], ", year: ", i[key]['year'])
 
 # make API call to send video files to s3
 def uploadVideo(local_file, s3_file):
@@ -112,14 +118,14 @@ def getFaceRecognitionResult(fileName, i):
     print("Latency: {:.2f} seconds.".format(latency))
 
     # upload image2
-    im = Image.open(str(path) + "image"+ str(i)+ "-002.jpeg")
-    # im1 = im.crop((left, top, right, bottom))
-    im.save(str(path) + "image"+ str(i)+ "-002.png")
-    start_time = time.time()
-    uploadImages(str(path) + "image"+ str(i)+ "-002.png", "image"+ str(i)+ "-002.png")
-    latency = time.time() - start_time
-    print("Latency: {:.2f} seconds.".format(latency))
-    print("Completed and terminating thread: ", i)
+    # im = Image.open(str(path) + "image"+ str(i)+ "-002.jpeg")
+    # # im1 = im.crop((left, top, right, bottom))
+    # im.save(str(path) + "image"+ str(i)+ "-002.png")
+    # start_time = time.time()
+    # uploadImages(str(path) + "image"+ str(i)+ "-002.png", "image"+ str(i)+ "-002.png")
+    # latency = time.time() - start_time
+    # print("Latency: {:.2f} seconds.".format(latency))
+    # print("Completed and terminating thread: ", i)
 
     # uploading file
 
@@ -142,3 +148,4 @@ print("Completed the recording of", recordingTimeInsec, "seconds!!!")
 # polling messages - ran as a separate thread
 # threads.append(threading.Thread(target=lambda: poolMessagesFromQueue(), name=str(0)))
 # threads[-1].start()
+
